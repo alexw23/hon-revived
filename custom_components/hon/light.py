@@ -143,3 +143,10 @@ class HonLightEntity(HonEntity, LightEntity):
         if (entity := self._device.settings.get(self.entity_description.key)) is None:
             return False
         return super().available and len(entity.values) > 1
+
+    @property
+    def color_mode(self) -> ColorMode | str | None:
+        """Return the active color mode."""
+        if ColorMode.BRIGHTNESS in self._attr_supported_color_modes:
+            return ColorMode.BRIGHTNESS
+        return ColorMode.ONOFF
