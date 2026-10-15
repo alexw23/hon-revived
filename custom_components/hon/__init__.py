@@ -30,6 +30,10 @@ def _consolidate_wc_zones(hon: Hon) -> None:
         # Mutate the existing list: pyhon's MQTTClient holds this same list.
         appliances[:] = kept_appliances
         _LOGGER.debug("Consolidated %s wine-cellar zone clones", removed)
+    for appliance in appliances:
+        if appliance.appliance_type == "WC" and appliance.model_id == 666:
+            # pyhon syncs before attributes load, leaving setpoints at their defaults.
+            appliance.sync_params_to_command("settings")
 
 
 HON_SCHEMA = vol.Schema(

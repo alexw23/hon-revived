@@ -96,7 +96,7 @@ class HonLightEntity(HonEntity, LightEntity):
         if self._device.appliance_type != "WC":
             await command.send()
             return
-        # Cached setpoints can sit at their minimum when reported values fail range sync.
+        # A full send would resend both setpoints, truncated to whole degrees.
         await command.send_specific([self._parameter])
 
     @property
