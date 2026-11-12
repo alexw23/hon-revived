@@ -1,4 +1,5 @@
 import logging
+from typing import Any
 from dataclasses import dataclass
 
 from homeassistant.components.binary_sensor import (
@@ -13,7 +14,7 @@ from homeassistant.core import HomeAssistant
 
 from .const import DOMAIN
 from .entity import HonEntity
-from .util import unique_entities
+from .util import CONNECTION_KEY, connection_category, unique_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -424,16 +425,18 @@ async def async_setup_entry(
 class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
     entity_description: HonBinarySensorEntityDescription
 
+    def _value(self) -> Any:
+        if self.entity_description.key == CONNECTION_KEY:
+            return connection_category(self._device)
+        attr = self._device.get(self.entity_description.key, None)
+        return attr.value if hasattr(attr, "value") else attr
+
     @property
     def is_on(self) -> bool:
-        attr = self._device.get(self.entity_description.key, None)
-        value = attr.value if hasattr(attr, "value") else attr
-        return bool(value == self.entity_description.on_value)
+        return bool(self._value() == self.entity_description.on_value)
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        attr = self._device.get(self.entity_description.key, None)
-        value = attr.value if hasattr(attr, "value") else attr
-        self._attr_native_value = value == self.entity_description.on_value
+        self._attr_native_value = self._value() == self.entity_description.on_value
         if update:
             self.schedule_update_ha_state()

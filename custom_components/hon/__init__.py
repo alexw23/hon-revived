@@ -10,6 +10,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhon import Hon
 
+from .util import seed_connection
 from .const import DOMAIN, PLATFORMS, MOBILE_ID, CONF_REFRESH_TOKEN
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         refresh_token=entry.data.get(CONF_REFRESH_TOKEN, ""),
     ).create()
     _consolidate_wc_zones(hon)
+    seed_connection(hon)
 
     # Save the new refresh token
     hass.config_entries.async_update_entry(

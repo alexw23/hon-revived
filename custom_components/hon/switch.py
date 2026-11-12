@@ -14,7 +14,7 @@ from pyhon.parameter.range import HonParameterRange
 
 from .const import DOMAIN
 from .entity import HonEntity
-from .util import unique_entities
+from .util import connection_category, unique_entities
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -470,7 +470,7 @@ class HonSwitchEntity(HonEntity, SwitchEntity):
             return False
         if not self._device.get("remoteCtrValid", 1) == 1:
             return False
-        if self._device.get("attributes.lastConnEvent.category") == "DISCONNECTED":
+        if connection_category(self._device) == "DISCONNECTED":
             return False
         setting = self._device.settings[f"settings.{self.entity_description.key}"]
         if isinstance(setting, HonParameterRange) and len(setting.values) < 2:
